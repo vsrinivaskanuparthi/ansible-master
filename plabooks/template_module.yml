@@ -1,0 +1,7 @@
+---
+- hosts: group1
+  tasks:
+  - name: using template module and applying handlebars
+    template:
+      src: /tmp/template.txt
+      dest: /tmp/template.txt
