@@ -1,0 +1,6 @@
+-> in ansible if you want to access the variables from playbook level then you need to mention those variables in playbook.and you need to use them.
+
+-> in ansilbe if you want to access the group variables  then you need to create a folder with name <group_vars> in ansible folder and 
+   1. you need to create file with group name already mentioned in hosts file.
+   2. then from playbook you can call those variables directily by using <{{variable_name}}.
+   

@@ -1,0 +1,10 @@
+---
+- hosts: group1
+  vars:
+    pkg_name: httpd
+    pkg_state: present
+  tasks:
+  - name: installing {{pkg_name}}
+    yum:
+      name: "{{pkg_name}}"
+      state: "{{pkg_state}}"

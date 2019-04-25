@@ -1,0 +1,137 @@
+Ansible Installation
+
+Create 2 or more Machines  and name one as Control Server and others as Remote machines
+Control  Server (RHEL):
+  
+   Controll server set up steps
+
+        vi  /etc/yum/pluginconf.d/subscription-manager.conf  and change enable=0  to disabale redhat subcriptions.
+
+   1  rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+   2  yum update
+   3  yum install ansible
+   4  ansible --version
+   5  yum update
+   6  adduser demo_user
+   7  passwd demo_user
+
+      # To give root privileges to ansible user
+   8  visudo (command and at the bottom we need to add user which is created and nopasswd:all we have to mention) then we are going to give root previleges to the newly created user  ( demo_user ALL=(ALL)  NOPASSWD:ALL)
+
+     
+
+      # By default in AWS OS images are designed for password less(.pem/.ppk Key based authentication) authentication
+      # SO we have to make it password based authentication for ansible user to communicate.
+   9  vi /etc/ssh/sshd_config
+   
+      passwordAuthentication = yes
+      permitrootlogin yes
+
+   10 service sshd restart
+   11 su - demo_user
+      
+      # Ansible communicates via ssh , so generate SSH keys and ID's and copy them into remote machine.
+   12 ssh-keygen
+   
+   
+EXECUTE REMOTE MACHINE STEPS listed in complete bottom of this page ON ALL REMOTE MACHINES and then continue from step 13
+
+   13  ssh-copy-id demo_user@<private Ip address/ DNS>
+       ssh-copy-id demo-user@172.31.19.7/ DNS
+   14  ssh <private Ip address/ DNS>  
+ssh 172.31.19.7
+ 
+       # you should be able to login to remote machine with out password prompt
+   15  cd /etc/ansible/
+   16  ls
+   17  sudo mv hosts hosts.ori
+   18  sudo vi hosts
+
+   	[webserver]
+   	<private Ip address/ DNS> #  pvt dns/ IP  of remote host
+
+   19  ansible webserver -m  ping
+      
+   
+
+  ====================================================================== %admin ALL=(ALL) ALL
+      
+ Remote Machine set up steps  (RHEL)
+ 
+    1  yum update -y
+    2  adduser demo_user
+    3  passwd demo_user
+    4  visudo
+
+       Demo_user ALL=(ALL)  NOPASSWD:ALL
+
+    5   vi /etc/ssh/sshd_config
+      
+       passwordAuthentication = yes
+       permitrootlogin yes
+
+    6  service sshd restart 
+
+
+
+
+
+
+after setup
+
+
+ansible dev.group -b -m yum -a "name=httpd state=latest"
+
+	
+ansible dev.group -b -m service -a "name=httpd state=started"
+
+
+
+
+
+sudo vi install_httpd.yaml
+
+---
+- hosts: group1
+  tasks: install httpd
+  - name: install httpd
+    yum:
+     name:httpd
+     state:present
+  -name: start the service
+   service:start httpd
+     name:httpd
+     state:started
+
+ansible-playbook -b  httpd_install.yml 
+
+
+       
+
+
+ansible group1 -m setup -a "filter=*ipv4*"
+
+ansible group1 -m setup
+ip address={{ansible_all_ipv4_addrrese}}
+vi xyz.conf.j2
+
+======
+ansible group1 -m setup -a "filter=*os_family*"
+
+==========================================
+---
+- hosts: all
+  vars:
+    pkg_name: httpd
+    pkg_state:  present
+  tasks:
+  - name: installing {{pkg_name}}"
+    yum: name="{{pkg_name}}" state="{{pkg_state}}"
+
+
+
+ansible-plabook -b -e pkg_name=wget xyz.yml
+(the e stands for extra variables for -e we can write also --extra-vars)
+
+
+
